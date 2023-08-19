@@ -6,11 +6,11 @@ dotenv.config()
 module.exports = {
   solidity: "0.8.18",
   networks: {
-    mumbai:{
-      url: process.env.MUMBAI_URL || "",
-      accounts: [process.env.PRIVATE_KEY],
-      chainID: '',
-      blockConfirmations: 6
-    }
+    // mumbai:{
+    //   url: process.env.MUMBAI_URL || "",
+    //   accounts: [process.env.PRIVATE_KEY],
+    //   chainID: '',
+    //   blockConfirmations: 6
+    // }
   }
 };
