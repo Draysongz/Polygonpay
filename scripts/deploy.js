@@ -2,7 +2,7 @@ const hre = require("hardhat");
 
 const main = async () => {
   const [owner, address1, address2] = await hre.ethers.getSigners();
-  const polygon = await hre.ethers.deployContract("PolygonPay");
+  const polygon = await hre.ethers.deployContract("Blockpay");
 
   polygon.waitForDeployment();
 
