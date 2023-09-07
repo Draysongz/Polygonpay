@@ -126,6 +126,24 @@ contract BlockpayFactory {
         return addressToContract[_contractCreator][_contractIndex];
     }
 
+    function getPaymentplans(
+        address _contractCreator
+    ) public view returns (PaymentPlan[] memory) {
+        PaymentPlan[] memory _paymentPlans = new PaymentPlan[](
+            addressToContract[_contractCreator].length
+        );
+        for (
+            uint256 i = 0;
+            i < addressToContract[_contractCreator].length;
+            i++
+        ) {
+            _paymentPlans[i] = addressToContract[_contractCreator][i]
+                .getPaymentPlan();
+        }
+
+        return _paymentPlans;
+    }
+
     function withdrawBpf(
         address _contractCreator,
         uint256 _contractIndex
