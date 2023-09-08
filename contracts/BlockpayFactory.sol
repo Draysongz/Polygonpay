@@ -11,7 +11,19 @@ contract BlockpayFactory {
     using PriceConverter for uint256;
     // create new Blockpay contracts
     // assign the creator address to each contract
-
+    event CreatedPaymentPlanBpF(string planName, uint256 amount);
+    event ReceivedPAymentBpF(
+        address planCreator,
+        uint256 contractIndex,
+        string firstname,
+        string lastname,
+        string email
+    );
+    event WithdrawnBpF(
+        address planCreator,
+        uint256 contractIndex,
+        uint256 withdrawnAmount
+    );
     address public factoryDeployer;
     // address private priceFeedAddress;
     AggregatorV3Interface public priceFeedAddress;
@@ -37,6 +49,7 @@ contract BlockpayFactory {
         );
         blockpayContract.createPaymentPlan(_planName, _amountInUSD, msg.sender);
         addressToContract[msg.sender].push(blockpayContract);
+        emit CreatedPaymentPlanBpF(_planName, _amountInUSD);
     }
 
     // receive payment
@@ -67,6 +80,13 @@ contract BlockpayFactory {
                 _email,
                 msg.value,
                 msg.sender
+            );
+            emit ReceivedPAymentBpF(
+                _contractCreator,
+                _contractIndex,
+                _firstName,
+                _lastname,
+                _email
             );
         } else {
             revert TransactionNotSent();
@@ -153,5 +173,10 @@ contract BlockpayFactory {
             _contractIndex
         );
         blockpayContract.withdraw(msg.sender);
+        emit WithdrawnBpF(
+            _contractCreator,
+            _contractIndex,
+            address(this).balance
+        );
     }
 }
