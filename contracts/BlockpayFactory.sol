@@ -11,7 +11,12 @@ contract BlockpayFactory {
     using PriceConverter for uint256;
     // create new Blockpay contracts
     // assign the creator address to each contract
-    event CreatedPaymentPlanBpF(string planName, uint256 amount);
+    event CreatedPaymentPlanBpF(
+        Blockpay blockPayContract,
+        string planName,
+        uint256 amount,
+        uint256 contractIndex
+    );
     event ReceivedPAymentBpF(
         address planCreator,
         uint256 contractIndex,
@@ -25,10 +30,12 @@ contract BlockpayFactory {
         uint256 withdrawnAmount
     );
     address public factoryDeployer;
-    // address private priceFeedAddress;
+
+    uint256 count = 0;
     AggregatorV3Interface public priceFeedAddress;
 
     mapping(address => Blockpay[]) addressToContract;
+    mapping(address => mapping(Blockpay => uint256)) creatorToContractAddressToContractIndex;
 
     constructor(address _priceFeedAddress) {
         factoryDeployer = msg.sender;
@@ -49,7 +56,16 @@ contract BlockpayFactory {
         );
         blockpayContract.createPaymentPlan(_planName, _amountInUSD, msg.sender);
         addressToContract[msg.sender].push(blockpayContract);
-        emit CreatedPaymentPlanBpF(_planName, _amountInUSD);
+        creatorToContractAddressToContractIndex[msg.sender][
+            blockpayContract
+        ] = count;
+        emit CreatedPaymentPlanBpF(
+            blockpayContract,
+            _planName,
+            _amountInUSD,
+            count
+        );
+        count += 1;
     }
 
     // receive payment
@@ -144,6 +160,18 @@ contract BlockpayFactory {
         uint256 _contractIndex
     ) public view returns (Blockpay) {
         return addressToContract[_contractCreator][_contractIndex];
+    }
+
+    // get the index of a blockpay contract
+    function getContractIndex(
+        address _contractCreator,
+        address blockpayAddress
+    ) public view returns (uint256) {
+        Blockpay blockpayContract = Blockpay(payable(blockpayAddress));
+        return
+            creatorToContractAddressToContractIndex[_contractCreator][
+                blockpayContract
+            ];
     }
 
     function getPaymentplans(
